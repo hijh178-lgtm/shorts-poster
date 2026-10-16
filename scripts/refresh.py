@@ -25,3 +25,14 @@ urllib.request.urlopen(urllib.request.Request(
     f"https://api.github.com/repos/{REPO}/actions/secrets/IG_TOKEN", method="PUT", headers=H,
     data=json.dumps({"encrypted_value": enc, "key_id": key["key_id"]}).encode()), timeout=30)
 print(f"인스타 토큰 연장 완료 (앞으로 {days}일 유효)")
+
+# 쓰레드 토큰도 같은 방식으로 연장 (TH_TOKEN 이 있을 때만)
+TH = os.environ.get("TH_TOKEN", "")
+if TH:
+    r = json.load(urllib.request.urlopen(
+        "https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=" + TH, timeout=60))
+    enc = base64.b64encode(box.encrypt(r["access_token"].encode())).decode()
+    urllib.request.urlopen(urllib.request.Request(
+        f"https://api.github.com/repos/{REPO}/actions/secrets/TH_TOKEN", method="PUT", headers=H,
+        data=json.dumps({"encrypted_value": enc, "key_id": key["key_id"]}).encode()), timeout=30)
+    print(f"쓰레드 토큰 연장 완료 (앞으로 {int(r.get('expires_in', 0)) // 86400}일 유효)")
