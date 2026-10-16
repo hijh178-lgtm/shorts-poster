@@ -18,3 +18,4 @@ jobs:
         env:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           GH_PAT: ${{ secrets.GH_PAT }}
+          TH_TOKEN: ${{ secrets.TH_TOKEN }}
