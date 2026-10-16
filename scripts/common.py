@@ -38,3 +38,22 @@ def save(name, obj):
 def raw_url(path):
     """저장소 파일의 공개 주소 (인스타가 영상을 가져가는 주소). 저장소가 공개(Public)여야 한다."""
     return f"https://raw.githubusercontent.com/{REPO}/main/{urllib.parse.quote(path)}"
+
+
+# ---------- 쓰레드 (선택: Secrets 에 TH_TOKEN·TH_USER_ID 가 있을 때만) ----------
+TG = "https://graph.threads.net/v1.0"
+TH_TOK = os.environ.get("TH_TOKEN", "")
+THID = os.environ.get("TH_USER_ID", "")
+
+
+def th_api(path, data=None):
+    url = f"{TG}/{path}"
+    if data is None:
+        url += ("&" if "?" in url else "?") + "access_token=" + TH_TOK
+        req = urllib.request.Request(url)
+    else:
+        req = urllib.request.Request(url, data=urllib.parse.urlencode({**data, "access_token": TH_TOK}).encode())
+    try:
+        return json.load(urllib.request.urlopen(req, timeout=60))
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"Threads API {e.code}: {e.read().decode('utf-8', 'ignore')[:300]}")
